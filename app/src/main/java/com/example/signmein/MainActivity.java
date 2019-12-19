@@ -30,6 +30,16 @@ public class MainActivity extends AppCompatActivity {
 
     private final static int REQUEST_FINE_LOCATION_PERMISSION = 0;
 
+    private boolean CHECK_PERMISSIONS_ON_RESUME = false;
+
+    protected void onResume() {
+        super.onResume();
+        if (CHECK_PERMISSIONS_ON_RESUME) {
+            CHECK_PERMISSIONS_ON_RESUME = false;
+            requestPermissions();
+        }
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String[] permissions, int[] grantResults) {
@@ -48,8 +58,10 @@ public class MainActivity extends AppCompatActivity {
 
                     if (showRationale) {
                         //Permission is denied. Since location is required, ask again.
+
                         builder.setTitle("Sorry, but we need permission. ");
                         builder.setMessage("Android will not permit us to access bluetooth and wifi hardware without location permission. ");
+
                         builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
                             public void onDismiss(DialogInterface dialog) {
                                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_FINE_LOCATION_PERMISSION);
@@ -58,15 +70,17 @@ public class MainActivity extends AppCompatActivity {
                     }
                     else {
                         //Permission has been denied, with "don't ask again" selected.
-                        
+
                         builder.setTitle("Location permission is required. ");
                         builder.setMessage("SignMeIn needs location permission in order to work. Since you have blocked additional permission requests, we will open settings so that you can grant us the permission manually. ");
+
                         builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
                             public void onDismiss(DialogInterface dialog) {
                                 //Open our application page in settings.
                                 Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                                 Uri uri = Uri.fromParts("package", getPackageName(), null);
                                 intent.setData(uri);
+                                CHECK_PERMISSIONS_ON_RESUME = true;
                                 startActivity(intent);
                             }
                         });
