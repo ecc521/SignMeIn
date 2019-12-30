@@ -11,8 +11,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-
-import com.google.android.gms.nearby.connection.Strategy;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -22,10 +23,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         requestPermissions();
+
+        //TESTING
+        String[] strArray1 = {"Device A","Device B","Device C"};
+        String[] strArray2 = {"Device 1","Device 2","Device 3"};
+        createDeviceOptionsList(strArray1);
+        createDeviceOptionsList(strArray2);
+        //END OF TESTING
     }
-
-
-    private static final Strategy STRATEGY = Strategy.P2P_STAR;
 
 
     private final static int REQUEST_FINE_LOCATION_PERMISSION = 0;
@@ -111,4 +116,21 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    private void createDeviceOptionsList(String[] items) {
+        LinearLayout ll = findViewById(R.id.deviceSelector);
+        ll.removeAllViews();
+        final RadioButton[] rb = new RadioButton[5];
+        RadioGroup rg = new RadioGroup(this);
+        rg.setOrientation(RadioGroup.VERTICAL);
+        for(int i=0; i<items.length; i++){
+            rb[i]  = new RadioButton(this);
+            rb[i].setText(items[i]);
+            rb[i].setId(i + 100);
+            rg.addView(rb[i]);
+        }
+        ll.addView(rg);
+    }
+
+
 }
