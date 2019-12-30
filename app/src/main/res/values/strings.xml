@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">SignMeIn</string>
+
+    <string name="hub_name">Hub</string>
+    <string name="client_name">Sign In</string>
+
 </resources>

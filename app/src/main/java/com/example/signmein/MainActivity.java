@@ -15,7 +15,8 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-
+//This activity will assure that the neccessary permissions are requested, perform initial setup,
+//then launch the app client.
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -98,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void requestPermissions() {
+        //Below Android Marshmellow, permissions must be granted for our app to install. 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             //TODO: We should request all permissions in case they are reclassified from normal to dangerous.
 
