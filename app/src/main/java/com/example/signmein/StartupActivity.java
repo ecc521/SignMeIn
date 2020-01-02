@@ -7,10 +7,8 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,13 +22,6 @@ public class StartupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.startup_activity);
         requestPermissions();
-
-        //TESTING
-        String[] strArray1 = {"Device A","Device B","Device C"};
-        String[] strArray2 = {"Device 1","Device 2","Device 3"};
-        createDeviceOptionsList(strArray1);
-        createDeviceOptionsList(strArray2);
-        //END OF TESTING
     }
 
 
@@ -55,6 +46,7 @@ public class StartupActivity extends AppCompatActivity {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //Permission granted.
+                    startApp(500);
                 }
                 else {
                     boolean showRationale = shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION);
@@ -98,8 +90,22 @@ public class StartupActivity extends AppCompatActivity {
         }
     }
 
+    private void startApp(int delayMillis) {
+        //We will show the splash screen for a short period of time, then launch the app.
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //setContentView(R.layout.activity_main);
+            }
+        }, delayMillis);
+    }
+
+    private void startApp() {
+        startApp(1500); //Default delay of 1500 milliseconds
+    }
+
     protected void requestPermissions() {
-        //Below Android Marshmellow, permissions must be granted for our app to install. 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             //TODO: We should request all permissions in case they are reclassified from normal to dangerous.
 
@@ -116,23 +122,14 @@ public class StartupActivity extends AppCompatActivity {
 
                 builder.show();
             }
+            else {
+                startApp();
+            }
+        }
+        else {
+            //Below Android Marshmellow, permissions must be granted for our app to install.
+            startApp();
         }
     }
-
-    private void createDeviceOptionsList(String[] items) {
-        LinearLayout ll = findViewById(R.id.deviceSelector);
-        ll.removeAllViews();
-        final RadioButton[] rb = new RadioButton[5];
-        RadioGroup rg = new RadioGroup(this);
-        rg.setOrientation(RadioGroup.VERTICAL);
-        for(int i=0; i<items.length; i++){
-            rb[i]  = new RadioButton(this);
-            rb[i].setText(items[i]);
-            rb[i].setId(i + 100);
-            rg.addView(rb[i]);
-        }
-        ll.addView(rg);
-    }
-
 
 }
