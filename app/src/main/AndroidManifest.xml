@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.signmein">
+    <!-- Required for Nearby Connections -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" /> <!-- I don't think ACCESS_COARSE_LOCATION is neccessary. -->
+    <!-- <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -9,6 +16,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity android:name=".StartupActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -18,14 +29,4 @@
         </activity>
     </application>
 
-    <!-- Required for Nearby Connections -->
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <!-- I don't think ACCESS_COARSE_LOCATION is neccessary. -->
-    <!--<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />-->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
-    <!-- May want REQUEST_IGNORE_BATTERY_OPTIMIZATIONS in order to better run in background-->
 </manifest>
