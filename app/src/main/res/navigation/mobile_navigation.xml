@@ -13,32 +13,32 @@
 
     <fragment
         android:id="@+id/nav_hub"
-        android:name="com.example.signmein.ui.gallery.GalleryFragment"
+        android:name="com.example.signmein.HubFragment"
         android:label="@string/menu_hub"
-        tools:layout="@layout/fragment_gallery" />
+        tools:layout="@layout/hub_fragment" />
 
     <fragment
         android:id="@+id/nav_settings"
-        android:name="com.example.signmein.ui.slideshow.SlideshowFragment"
+        android:name="com.example.signmein.SettingsFragment"
         android:label="@string/menu_settings"
-        tools:layout="@layout/fragment_slideshow" />
+        tools:layout="@layout/settings_fragment" />
 
     <fragment
         android:id="@+id/nav_contact"
-        android:name="com.example.signmein.ui.share.ShareFragment"
+        android:name="com.example.signmein.ContactFragment"
         android:label="@string/menu_contact"
-        tools:layout="@layout/fragment_share" />
+        tools:layout="@layout/contact_fragment" />
 
     <fragment
         android:id="@+id/nav_faq"
-        android:name="com.example.signmein.ui.send.SendFragment"
+        android:name="com.example.signmein.FAQFragment"
         android:label="@string/menu_faq"
-        tools:layout="@layout/fragment_send" />
+        tools:layout="@layout/faq_fragment" />
 
     <fragment
         android:id="@+id/nav_about"
-        android:name="com.example.signmein.ui.tools.ToolsFragment"
+        android:name="com.example.signmein.AboutFragment"
         android:label="@string/menu_about"
-        tools:layout="@layout/fragment_send" />
+        tools:layout="@layout/about_fragment" />
 
 </navigation>
