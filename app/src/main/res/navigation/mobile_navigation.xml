@@ -3,11 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_home">
+    app:startDestination="@+id/nav_client">
 
     <fragment
-        android:id="@+id/nav_home"
-        android:name="com.example.signmein.client.ClientFragment"
+        android:id="@+id/nav_client"
+        android:name="com.example.signmein.ClientFragment"
         android:label="@string/menu_home"
         tools:layout="@layout/client_fragment" />
 

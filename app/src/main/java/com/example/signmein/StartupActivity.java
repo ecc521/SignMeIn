@@ -9,7 +9,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
-import android.util.Log;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -97,7 +96,6 @@ public class StartupActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Log.i("StartupActivity", "Opened MainActivity");
                 Intent openMainApp = new Intent(getBaseContext(), MainActivity.class);
                 openMainApp.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 getBaseContext().startActivity(openMainApp);
