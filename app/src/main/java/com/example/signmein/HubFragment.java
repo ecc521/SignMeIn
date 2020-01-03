@@ -13,6 +13,6 @@ public class HubFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         //Draw client_fragment XML.
-        return inflater.inflate(R.layout.about_fragment, container, false);
+        return inflater.inflate(R.layout.hub_fragment, container, false);
     }
 }
