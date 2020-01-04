@@ -104,7 +104,7 @@ public class StartupActivity extends AppCompatActivity {
     }
 
     private void startApp() {
-        startApp(1500); //Default delay of 1500 milliseconds
+        startApp(1000); //Default delay.
     }
 
     protected void requestPermissions() {

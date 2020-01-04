@@ -12,7 +12,6 @@ public class FAQFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        //Draw client_fragment XML.
         return inflater.inflate(R.layout.faq_fragment, container, false);
     }
 }

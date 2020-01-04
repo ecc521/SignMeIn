@@ -18,7 +18,6 @@ public class ClientFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        //Draw client_fragment XML.
         return inflater.inflate(R.layout.client_fragment, container, false);
     }
 
