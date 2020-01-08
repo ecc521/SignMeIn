@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "329477146944",
+    "firebase_url": "https://signmein-b6efa.firebaseio.com",
+    "project_id": "signmein-b6efa",
+    "storage_bucket": "signmein-b6efa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:329477146944:android:e2985907de4603775dd2a5",
+        "android_client_info": {
+          "package_name": "com.example.signmein"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "329477146944-hrph2fhlba8jotpjndnn0llcpd5fqo5n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_twlfi_10Fq41fKO-t5Ch2M5ohYVjr44"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "329477146944-hrph2fhlba8jotpjndnn0llcpd5fqo5n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
