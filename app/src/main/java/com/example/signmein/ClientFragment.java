@@ -43,4 +43,16 @@ public class ClientFragment extends Fragment {
         }
         ll.addView(rg);
     }
+
+    public void onResume() {
+        super.onResume();
+        DeviceConnector deviceConnector = new DeviceConnector(getContext());
+        deviceConnector.startDiscovery();
+    }
+
+    public void onPause() {
+        super.onPause();
+        DeviceConnector deviceConnector = new DeviceConnector(getContext());
+        deviceConnector.stopDiscovery();
+    }
 }
