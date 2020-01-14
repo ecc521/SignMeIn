@@ -39,7 +39,7 @@ public class DeviceConnector {
                 .addOnSuccessListener(
                         (Void unused) -> {
                             // We're advertising!
-                            Log.i(TAG, "Advertising Started");
+                            Log.i(TAG, "Started Advertising");
                         })
                 .addOnFailureListener(
                         (Exception e) -> {
@@ -85,12 +85,14 @@ public class DeviceConnector {
                             .requestConnection(userNickname, endpointId, connectionLifecycleCallback)
                             .addOnSuccessListener(
                                     (Void unused) -> {
+                                        Log.i(TAG, "Requested Connection to " + endpointId);
                                         // We successfully requested a connection. Now both sides
                                         // must accept before the connection is established.
                                     })
                             .addOnFailureListener(
                                     (Exception e) -> {
                                         // Nearby Connections failed to request the connection.
+                                        Log.e(TAG, "Failed to Initiate Connection to " + endpointId + ". " + e);
                                     });
                 }
 
@@ -105,7 +107,7 @@ public class DeviceConnector {
                 @Override
                 public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
                     // Automatically accept the connection on both sides.
-                    Log.i("DeviceConnector", endpointId);
+                    Log.i("DeviceConnector", "Connection initiated by " + endpointId);
                     //Nearby.getConnectionsClient(context).acceptConnection(endpointId, payloadCallback);
                 }
 
