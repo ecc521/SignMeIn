@@ -1,6 +1,7 @@
 package com.example.signmein;
 
 import android.content.Context;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.google.android.gms.nearby.Nearby;
@@ -24,6 +25,9 @@ public class DeviceConnector {
     private Context context;
 
     private String userNickname = "Test Name";
+
+    //Android ID is used to try and detect sign-in fraud, where one person signs in for somebody else.
+    private final String ANDROID_ID = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
 
     public DeviceConnector(Context context) {
         this.context = context;
@@ -81,6 +85,9 @@ public class DeviceConnector {
                 public void onEndpointFound(String endpointId, DiscoveredEndpointInfo info) {
                     // An endpoint was found. We request a connection to it.
                     Log.i(TAG, "Found Endpoint " + endpointId);
+                    Log.i(TAG, "Endpoint Name is " + info.getEndpointName());
+                    Log.i(TAG, "Endpoint service id is " + info.getServiceId());
+
                     Nearby.getConnectionsClient(context)
                             .requestConnection(userNickname, endpointId, connectionLifecycleCallback)
                             .addOnSuccessListener(
@@ -99,6 +106,7 @@ public class DeviceConnector {
                 @Override
                 public void onEndpointLost(String endpointId) {
                     // A previously discovered endpoint has gone away.
+                    Log.i(TAG, "Endpoint Disappeared " + endpointId);
                 }
             };
 
@@ -107,7 +115,9 @@ public class DeviceConnector {
                 @Override
                 public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
                     // Automatically accept the connection on both sides.
-                    Log.i("DeviceConnector", "Connection initiated by " + endpointId);
+                    Log.i(TAG, "Connection initiated by " + endpointId);
+                    Log.i(TAG, "Endpoint name is " + connectionInfo.getEndpointName());
+                    Log.i(TAG, "Android ID for current device is " + ANDROID_ID);
                     //Nearby.getConnectionsClient(context).acceptConnection(endpointId, payloadCallback);
                 }
 
@@ -115,12 +125,15 @@ public class DeviceConnector {
                 public void onConnectionResult(String endpointId, ConnectionResolution result) {
                     switch (result.getStatus().getStatusCode()) {
                         case ConnectionsStatusCodes.STATUS_OK:
+                            Log.i(TAG, "Successfully connected to " + endpointId);
                             // We're connected! Can now start sending and receiving data.
                             break;
                         case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
+                            Log.i(TAG, "Connection rejected for endpoint " + endpointId);
                             // The connection was rejected by one or both sides.
                             break;
                         case ConnectionsStatusCodes.STATUS_ERROR:
+                            Log.e(TAG, "Connection errored for endpoint " + endpointId);
                             // The connection broke before it was able to be accepted.
                             break;
                         default:
@@ -130,6 +143,7 @@ public class DeviceConnector {
 
                 @Override
                 public void onDisconnected(String endpointId) {
+                    Log.i(TAG, "Disconnected from " + endpointId);
                     // We've been disconnected from this endpoint. No more data can be
                     // sent or received.
                 }
