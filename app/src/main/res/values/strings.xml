@@ -13,6 +13,8 @@
     <string name="motto">Making Sign-Ins Better</string>
     <string name="mission_statement">SignMeIn is developed to help make sign-ins easier and more accurate, and works to serve both schools, clubs, and volunteer events. </string>
 
+    <string name="email">signmeinapp@gmail.com</string>
+
     <string name="menu_home">Sign In</string>
     <string name="menu_hub">Hub</string>
 
