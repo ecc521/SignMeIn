@@ -27,12 +27,13 @@ public class DeviceConnector {
     private String userNickname = "Test Name";
 
     //Android ID is used to try and detect sign-in fraud, where one person signs in for somebody else.
-    private final String ANDROID_ID = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    private String ANDROID_ID;
 
     public DeviceConnector(Context context) {
         this.context = context;
+        this.ANDROID_ID = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        Log.i(TAG, "Android ID for current device is " + ANDROID_ID);
     }
-
 
     public void startAdvertising() {
         AdvertisingOptions advertisingOptions =
@@ -117,7 +118,6 @@ public class DeviceConnector {
                     // Automatically accept the connection on both sides.
                     Log.i(TAG, "Connection initiated by " + endpointId);
                     Log.i(TAG, "Endpoint name is " + connectionInfo.getEndpointName());
-                    Log.i(TAG, "Android ID for current device is " + ANDROID_ID);
                     //Nearby.getConnectionsClient(context).acceptConnection(endpointId, payloadCallback);
                 }
 
