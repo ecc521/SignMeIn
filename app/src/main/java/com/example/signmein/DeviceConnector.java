@@ -2,6 +2,7 @@ package com.example.signmein;
 
 import android.content.Context;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.gms.nearby.Nearby;
@@ -15,6 +16,9 @@ import com.google.android.gms.nearby.connection.DiscoveryOptions;
 import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback;
 import com.google.android.gms.nearby.connection.Strategy;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DeviceConnector {
     private static final Strategy STRATEGY = Strategy.P2P_STAR;
 
@@ -24,10 +28,12 @@ public class DeviceConnector {
 
     private Context context;
 
-    private String userNickname = "Test Name";
+    private String userNickname;
 
     //Android ID is used to try and detect sign-in fraud, where one person signs in for somebody else.
     private String ANDROID_ID;
+
+    private List<String> availableHubs = new ArrayList<String>();
 
     public DeviceConnector(Context context) {
         this.context = context;
@@ -35,7 +41,8 @@ public class DeviceConnector {
         Log.i(TAG, "Android ID for current device is " + ANDROID_ID);
     }
 
-    public void startAdvertising() {
+    public void startAdvertising(String userNickname) {
+        this.userNickname = userNickname;
         AdvertisingOptions advertisingOptions =
                 new AdvertisingOptions.Builder().setStrategy(STRATEGY).build();
         Nearby.getConnectionsClient(context)
@@ -63,7 +70,11 @@ public class DeviceConnector {
         //TODO: Do we need listeners?
     }
 
-    public void startDiscovery() {
+    private AvailableDevicesChangedCallback callback;
+
+    public void startDiscovery(String userNickname, AvailableDevicesChangedCallback callback) {
+        this.callback = callback;
+        this.userNickname = userNickname;
         DiscoveryOptions discoveryOptions =
                 new DiscoveryOptions.Builder().setStrategy(STRATEGY).build();
         Nearby.getConnectionsClient(context)
@@ -87,9 +98,16 @@ public class DeviceConnector {
                     // An endpoint was found. We request a connection to it.
                     Log.i(TAG, "Found Endpoint " + endpointId);
                     Log.i(TAG, "Endpoint Name is " + info.getEndpointName());
-                    Log.i(TAG, "Endpoint service id is " + info.getServiceId());
 
-                    Nearby.getConnectionsClient(context)
+                    String hubIdentifier = endpointId; //TODO: We need a way to show the user friendly endpoint
+                    //name instead of just providing the endpoint ID. Make sure to change onEndpointLost to also use a new system.
+                    availableHubs.add(hubIdentifier);
+                    Log.i(TAG, "List of Endpoints: " + TextUtils.join(", ", availableHubs));
+
+                    String[] hubsForCallback = availableHubs.toArray(new String[0]);
+                    callback.AvailableDevicesChanged(hubsForCallback);
+
+                    /*Nearby.getConnectionsClient(context)
                             .requestConnection(userNickname, endpointId, connectionLifecycleCallback)
                             .addOnSuccessListener(
                                     (Void unused) -> {
@@ -101,13 +119,15 @@ public class DeviceConnector {
                                     (Exception e) -> {
                                         // Nearby Connections failed to request the connection.
                                         Log.e(TAG, "Failed to Initiate Connection to " + endpointId + ". " + e);
-                                    });
+                                    });*/
                 }
 
                 @Override
                 public void onEndpointLost(String endpointId) {
                     // A previously discovered endpoint has gone away.
                     Log.i(TAG, "Endpoint Disappeared " + endpointId);
+                    availableHubs.remove(endpointId);
+                    Log.i(TAG, "List of Endpoints: " + TextUtils.join(", ", availableHubs));
                 }
             };
 

@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
@@ -21,7 +22,7 @@ public class HubFragment extends Fragment {
     public void onResume() {
         super.onResume();
         DeviceConnector deviceConnector = new DeviceConnector(getContext());
-        deviceConnector.startAdvertising();
+        deviceConnector.startAdvertising("Test Hub");
     }
 
     public void onPause() {
