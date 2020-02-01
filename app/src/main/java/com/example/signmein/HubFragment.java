@@ -30,8 +30,6 @@ public class HubFragment extends Fragment {
 
         //If the user presses the sign me in button, sign them in.
         Button localSignInButton = inputView.findViewById(R.id.localSignInButton);
-        //localSignInButton.setOnClickListener(this::localSignIn);
-        //localSignInButton.setOnClickListener(this::hideKeyboard);
         localSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -49,6 +47,7 @@ public class HubFragment extends Fragment {
                 //If the keyevent is a key-down event on the "enter" button
                 if ((keyevent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
                     localSignIn();
+                    hideKeyboard();
                     return true;
                 }
                 return false;
@@ -65,9 +64,6 @@ public class HubFragment extends Fragment {
 
         inputManager.hideSoftInputFromWindow((null == getActivity().getCurrentFocus())
                 ? null : getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-
-        //inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
-                //InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
     public void onResume() {
