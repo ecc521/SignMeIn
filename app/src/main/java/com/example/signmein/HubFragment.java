@@ -19,6 +19,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -120,10 +122,24 @@ public class HubFragment extends Fragment {
             String time = dateFormat.format(new Date());
             String date = simpleDateFormat.format(new Date());
 
-            attendance.update(date, "Present at " + time + ".");
-
-            userSignedIn(name, "local");
-            studentName.setText("");
+            attendance.update(date, "Present at " + time + ".")
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        userSignedIn(name, "local");
+                        studentName.setText("");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                        builder.setPositiveButton(android.R.string.ok, null);
+                        builder.setTitle("Student not found in class. Please contact teacher.");
+                        builder.show();
+                        studentName.setText("");
+                    }
+                });
         }
     }
 }
