@@ -19,6 +19,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 public class HubFragment extends Fragment {
     private String TAG = "HubFragment";
 
@@ -107,6 +110,18 @@ public class HubFragment extends Fragment {
             builder.show();
         }
         else {
+            //Look for Document under teacher's name from login for the name entered in
+            //Documents "Bob" and "History" will be changed to variables whenever the teacher login is implemented
+            DocumentReference attendance = FirebaseFirestore.getInstance().collection("Teachers").document("Bob").collection("Classes").document("History").collection("Students").document(name);
+
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy");
+            DateFormat dateFormat = DateFormat.getTimeInstance();
+
+            String time = dateFormat.format(new Date());
+            String date = simpleDateFormat.format(new Date());
+
+            attendance.update(date, "Present at " + time + ".");
+
             userSignedIn(name, "local");
             studentName.setText("");
         }
