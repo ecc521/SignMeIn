@@ -19,6 +19,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 public class HubFragment extends Fragment {
     private String TAG = "HubFragment";
 
@@ -107,8 +112,34 @@ public class HubFragment extends Fragment {
             builder.show();
         }
         else {
-            userSignedIn(name, "local");
-            studentName.setText("");
+            //Look for Document under teacher's name from login for the name entered in
+            //Documents "Bob" and "History" will be changed to variables whenever the teacher login is implemented
+            DocumentReference attendance = FirebaseFirestore.getInstance().collection("Teachers").document("Bob").collection("Classes").document("History").collection("Students").document(name);
+
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy");
+            DateFormat dateFormat = DateFormat.getTimeInstance();
+
+            String time = dateFormat.format(new Date());
+            String date = simpleDateFormat.format(new Date());
+
+            attendance.update(date, "Present at " + time + ".")
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        userSignedIn(name, "local");
+                        studentName.setText("");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                        builder.setPositiveButton(android.R.string.ok, null);
+                        builder.setTitle("Student not found in class. Please contact teacher.");
+                        builder.show();
+                        studentName.setText("");
+                    }
+                });
         }
     }
 }
