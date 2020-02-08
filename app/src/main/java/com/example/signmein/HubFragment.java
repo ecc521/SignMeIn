@@ -92,13 +92,36 @@ public class HubFragment extends Fragment {
             text = "";
         }
 
-        DateFormat dateFormat = DateFormat.getTimeInstance(); //new SimpleDateFormat("HH:mm:ss");
-        Date date = new Date();
-        String time = dateFormat.format(date);
+        DateFormat dateFormat = DateFormat.getTimeInstance();
+        String time = dateFormat.format(new Date());
 
         text = name + " signed in at " + time + "\n" + text;
 
         signInHistory.setText(text);
+
+
+
+        //Look for Document under teacher's name from login for the name entered in
+        //Documents "Bob" and "History" will be changed to variables whenever the teacher login is implemented
+        DocumentReference attendance = FirebaseFirestore.getInstance().collection("Teachers").document("Bob").collection("Classes").document("History").collection("Students").document(name);
+
+        String date = new SimpleDateFormat("MM-dd-yyyy").format(new Date());
+
+        attendance.update(date, "Present at " + time + ".")
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                        builder.setPositiveButton(android.R.string.ok, null);
+                        builder.setTitle("Student " + name + " not found in class. Please contact teacher.");
+                        builder.show();
+                    }
+                });
     }
 
     public void localSignIn() {
@@ -112,34 +135,8 @@ public class HubFragment extends Fragment {
             builder.show();
         }
         else {
-            //Look for Document under teacher's name from login for the name entered in
-            //Documents "Bob" and "History" will be changed to variables whenever the teacher login is implemented
-            DocumentReference attendance = FirebaseFirestore.getInstance().collection("Teachers").document("Bob").collection("Classes").document("History").collection("Students").document(name);
-
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy");
-            DateFormat dateFormat = DateFormat.getTimeInstance();
-
-            String time = dateFormat.format(new Date());
-            String date = simpleDateFormat.format(new Date());
-
-            attendance.update(date, "Present at " + time + ".")
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        userSignedIn(name, "local");
-                        studentName.setText("");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                        builder.setPositiveButton(android.R.string.ok, null);
-                        builder.setTitle("Student not found in class. Please contact teacher.");
-                        builder.show();
-                        studentName.setText("");
-                    }
-                });
+            userSignedIn(name, "local");
+            studentName.setText("");
         }
     }
 }
