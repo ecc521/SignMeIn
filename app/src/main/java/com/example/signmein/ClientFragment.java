@@ -29,21 +29,21 @@ public class ClientFragment extends Fragment {
     public void onStart() {
         super.onStart();
         String[] strArray1 = {"Device A","Device B","Device C"};
-        String[] strArray2 = {"Device 1","Device 2","Device 3"};
-        createDeviceOptionsList(strArray1);
-        createDeviceOptionsList(strArray2);
+        String[] strArray2 = {"Room 1","Room 2","Room 3"};
+        createDeviceOptionsList(strArray1, strArray2);
     }
 
-    private void createDeviceOptionsList(String[] items) {
+    private void createDeviceOptionsList(String[] endpointIds, String[] hubNames) {
         LinearLayout ll = getActivity().findViewById(R.id.deviceSelector);
         ll.removeAllViews();
         final RadioButton[] rb = new RadioButton[5];
         RadioGroup rg = new RadioGroup(getActivity());
         rg.setOrientation(RadioGroup.VERTICAL);
-        for(int i=0; i<items.length; i++){
+        for(int i=0; i<endpointIds.length; i++){
+            String endpointId = endpointIds[i];
             rb[i]  = new RadioButton(getActivity());
-            rb[i].setText(items[i]);
-            rb[i].setId(i + 100);
+            rb[i].setText(hubNames[i] + " (" + endpointId + ")");
+            rb[i].setTag(endpointId);
             rg.addView(rb[i]);
         }
         ll.addView(rg);
@@ -55,9 +55,9 @@ public class ClientFragment extends Fragment {
 
         AvailableDevicesChangedCallback callback = new AvailableDevicesChangedCallback() {
             @Override
-            public void AvailableDevicesChanged(String[] latestHubs) {
+            public void AvailableDevicesChanged(String[] endpointIds, String[] hubNames) {
                 Log.i(TAG, "Callback Called. ");
-                createDeviceOptionsList(latestHubs);
+                createDeviceOptionsList(endpointIds, hubNames);
             }
         };
         deviceConnector.startDiscovery("Test Client", callback);

@@ -33,7 +33,8 @@ public class DeviceConnector {
     //Android ID is used to try and detect sign-in fraud, where one person signs in for somebody else.
     private String ANDROID_ID;
 
-    private List<String> availableHubs = new ArrayList<String>();
+    private List<String> availableHubNames = new ArrayList<>();
+    private List<String> availableHubs = new ArrayList<>();
 
     public DeviceConnector(Context context) {
         this.context = context;
@@ -102,10 +103,14 @@ public class DeviceConnector {
                     String hubIdentifier = endpointId; //TODO: We need a way to show the user friendly endpoint
                     //name instead of just providing the endpoint ID. Make sure to change onEndpointLost to also use a new system.
                     availableHubs.add(hubIdentifier);
+                    availableHubNames.add(info.getEndpointName());
+
                     Log.i(TAG, "List of Endpoints: " + TextUtils.join(", ", availableHubs));
 
                     String[] hubsForCallback = availableHubs.toArray(new String[0]);
-                    callback.AvailableDevicesChanged(hubsForCallback);
+                    String[] hubNamesForCallback = availableHubNames.toArray(new String[0]);
+
+                    callback.AvailableDevicesChanged(hubsForCallback, hubNamesForCallback);
 
                     /*Nearby.getConnectionsClient(context)
                             .requestConnection(userNickname, endpointId, connectionLifecycleCallback)
@@ -126,6 +131,8 @@ public class DeviceConnector {
                 public void onEndpointLost(String endpointId) {
                     // A previously discovered endpoint has gone away.
                     Log.i(TAG, "Endpoint Disappeared " + endpointId);
+
+                    availableHubNames.remove(availableHubs.indexOf(endpointId));
                     availableHubs.remove(endpointId);
                     Log.i(TAG, "List of Endpoints: " + TextUtils.join(", ", availableHubs));
                 }
