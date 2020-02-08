@@ -74,7 +74,12 @@ public class HubFragment extends Fragment {
     public void onResume() {
         super.onResume();
         DeviceConnector deviceConnector = new DeviceConnector(getContext());
-        deviceConnector.startAdvertising("Test Hub");
+        deviceConnector.startAdvertising("Test Hub", new IncomingConnectionCallback() {
+            @Override
+            public void IncomingConnection(String endpointId, String endpointName) {
+                userSignedIn(endpointName, endpointId); //TODO: Transfer android ID so that we have an installation ID instead of something that changes every time the app opens.
+            }
+        });
     }
 
     public void onPause() {

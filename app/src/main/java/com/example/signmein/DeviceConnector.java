@@ -36,14 +36,53 @@ public class DeviceConnector {
     private List<String> availableHubNames = new ArrayList<>();
     private List<String> availableHubs = new ArrayList<>();
 
+
+
     public DeviceConnector(Context context) {
         this.context = context;
         this.ANDROID_ID = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         Log.i(TAG, "Android ID for current device is " + ANDROID_ID);
     }
 
-    public void startAdvertising(String userNickname) {
+    public void startAdvertising(String userNickname, IncomingConnectionCallback callback) {
         this.userNickname = userNickname;
+
+        ConnectionLifecycleCallback connectionLifecycleCallback =
+                new ConnectionLifecycleCallback() {
+                    @Override
+                    public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
+                        callback.IncomingConnection(endpointId, connectionInfo.getEndpointName());
+                        //Nearby.getConnectionsClient(context).acceptConnection(endpointId, payloadCallback);
+                    }
+
+                    @Override
+                    public void onConnectionResult(String endpointId, ConnectionResolution result) {
+                        switch (result.getStatus().getStatusCode()) {
+                            case ConnectionsStatusCodes.STATUS_OK:
+                                Log.i(TAG, "Successfully connected to " + endpointId);
+                                // We're connected! Can now start sending and receiving data.
+                                break;
+                            case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
+                                Log.i(TAG, "Connection rejected for endpoint " + endpointId);
+                                // The connection was rejected by one or both sides.
+                                break;
+                            case ConnectionsStatusCodes.STATUS_ERROR:
+                                Log.e(TAG, "Connection errored for endpoint " + endpointId);
+                                // The connection broke before it was able to be accepted.
+                                break;
+                            default:
+                                // Unknown status code
+                        }
+                    }
+
+                    @Override
+                    public void onDisconnected(String endpointId) {
+                        Log.i(TAG, "Disconnected from " + endpointId);
+                        // We've been disconnected from this endpoint. No more data can be
+                        // sent or received.
+                    }
+                };
+
         AdvertisingOptions advertisingOptions =
                 new AdvertisingOptions.Builder().setStrategy(STRATEGY).build();
         Nearby.getConnectionsClient(context)
@@ -92,39 +131,73 @@ public class DeviceConnector {
                         });
     }
 
+    public void connectToEndpoint(String userNickname, String endpointId) {
+    //TODO: We need to disconnect from the endpoint so that we can connect again in the future without restarting the app.
+         ConnectionLifecycleCallback connectionLifecycleCallback =
+                new ConnectionLifecycleCallback() {
+                    @Override
+                    public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
+                        // Automatically accept the connection on both sides.
+                        Log.i(TAG, "Connection initiated by " + endpointId);
+                        Log.i(TAG, "Endpoint name is " + connectionInfo.getEndpointName());
+                        //Nearby.getConnectionsClient(context).acceptConnection(endpointId, payloadCallback);
+                    }
+
+                    @Override
+                    public void onConnectionResult(String endpointId, ConnectionResolution result) {
+                        switch (result.getStatus().getStatusCode()) {
+                            case ConnectionsStatusCodes.STATUS_OK:
+                                Log.i(TAG, "Successfully connected to " + endpointId);
+                                // We're connected! Can now start sending and receiving data.
+                                break;
+                            case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
+                                Log.i(TAG, "Connection rejected for endpoint " + endpointId);
+                                // The connection was rejected by one or both sides.
+                                break;
+                            case ConnectionsStatusCodes.STATUS_ERROR:
+                                Log.e(TAG, "Connection errored for endpoint " + endpointId);
+                                // The connection broke before it was able to be accepted.
+                                break;
+                            default:
+                                // Unknown status code
+                        }
+                    }
+
+                    @Override
+                    public void onDisconnected(String endpointId) {
+                        Log.i(TAG, "Disconnected from " + endpointId);
+                        // We've been disconnected from this endpoint. No more data can be
+                        // sent or received.
+                    }
+                };
+
+        Nearby.getConnectionsClient(context)
+                .requestConnection(userNickname, endpointId, connectionLifecycleCallback)
+                .addOnSuccessListener(
+                        (Void unused) -> {
+                            Log.i(TAG, "Requested Connection to " + endpointId);
+                            // We successfully requested a connection. Now both sides
+                            // must accept before the connection is established.
+                        })
+                .addOnFailureListener(
+                        (Exception e) -> {
+                            // Nearby Connections failed to request the connection.
+                            Log.e(TAG, "Failed to Initiate Connection to " + endpointId + ". " + e);
+                        });
+    }
+
     private final EndpointDiscoveryCallback endpointDiscoveryCallback =
             new EndpointDiscoveryCallback() {
                 @Override
                 public void onEndpointFound(String endpointId, DiscoveredEndpointInfo info) {
-                    // An endpoint was found. We request a connection to it.
-                    Log.i(TAG, "Found Endpoint " + endpointId);
-                    Log.i(TAG, "Endpoint Name is " + info.getEndpointName());
 
-                    String hubIdentifier = endpointId; //TODO: We need a way to show the user friendly endpoint
-                    //name instead of just providing the endpoint ID. Make sure to change onEndpointLost to also use a new system.
-                    availableHubs.add(hubIdentifier);
+                    availableHubs.add(endpointId);
                     availableHubNames.add(info.getEndpointName());
-
-                    Log.i(TAG, "List of Endpoints: " + TextUtils.join(", ", availableHubs));
 
                     String[] hubsForCallback = availableHubs.toArray(new String[0]);
                     String[] hubNamesForCallback = availableHubNames.toArray(new String[0]);
 
                     callback.AvailableDevicesChanged(hubsForCallback, hubNamesForCallback);
-
-                    /*Nearby.getConnectionsClient(context)
-                            .requestConnection(userNickname, endpointId, connectionLifecycleCallback)
-                            .addOnSuccessListener(
-                                    (Void unused) -> {
-                                        Log.i(TAG, "Requested Connection to " + endpointId);
-                                        // We successfully requested a connection. Now both sides
-                                        // must accept before the connection is established.
-                                    })
-                            .addOnFailureListener(
-                                    (Exception e) -> {
-                                        // Nearby Connections failed to request the connection.
-                                        Log.e(TAG, "Failed to Initiate Connection to " + endpointId + ". " + e);
-                                    });*/
                 }
 
                 @Override
@@ -135,44 +208,6 @@ public class DeviceConnector {
                     availableHubNames.remove(availableHubs.indexOf(endpointId));
                     availableHubs.remove(endpointId);
                     Log.i(TAG, "List of Endpoints: " + TextUtils.join(", ", availableHubs));
-                }
-            };
-
-    private final ConnectionLifecycleCallback connectionLifecycleCallback =
-            new ConnectionLifecycleCallback() {
-                @Override
-                public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
-                    // Automatically accept the connection on both sides.
-                    Log.i(TAG, "Connection initiated by " + endpointId);
-                    Log.i(TAG, "Endpoint name is " + connectionInfo.getEndpointName());
-                    //Nearby.getConnectionsClient(context).acceptConnection(endpointId, payloadCallback);
-                }
-
-                @Override
-                public void onConnectionResult(String endpointId, ConnectionResolution result) {
-                    switch (result.getStatus().getStatusCode()) {
-                        case ConnectionsStatusCodes.STATUS_OK:
-                            Log.i(TAG, "Successfully connected to " + endpointId);
-                            // We're connected! Can now start sending and receiving data.
-                            break;
-                        case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
-                            Log.i(TAG, "Connection rejected for endpoint " + endpointId);
-                            // The connection was rejected by one or both sides.
-                            break;
-                        case ConnectionsStatusCodes.STATUS_ERROR:
-                            Log.e(TAG, "Connection errored for endpoint " + endpointId);
-                            // The connection broke before it was able to be accepted.
-                            break;
-                        default:
-                            // Unknown status code
-                    }
-                }
-
-                @Override
-                public void onDisconnected(String endpointId) {
-                    Log.i(TAG, "Disconnected from " + endpointId);
-                    // We've been disconnected from this endpoint. No more data can be
-                    // sent or received.
                 }
             };
 
