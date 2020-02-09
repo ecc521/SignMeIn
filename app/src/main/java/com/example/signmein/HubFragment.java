@@ -108,6 +108,7 @@ public class HubFragment extends Fragment {
 
         //Look for Document under teacher's name from login for the name entered in
         //Documents "Bob" and "History" will be changed to variables whenever the teacher login is implemented
+        // TODO: Silently fails when not connected to wifi.
         DocumentReference attendance = FirebaseFirestore.getInstance().collection("Teachers").document("Bob").collection("Classes").document("History").collection("Students").document(name);
 
         String date = new SimpleDateFormat("MM-dd-yyyy").format(new Date());
