@@ -50,5 +50,6 @@ dependencies {
 
     //multidex required because of large amounts of methods in firebase apis.
     implementation 'com.android.support:multidex:1.0.3'
+
     implementation 'com.google.android.gms:play-services-auth:17.0.0'
 }

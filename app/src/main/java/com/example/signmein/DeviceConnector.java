@@ -14,10 +14,15 @@ import com.google.android.gms.nearby.connection.ConnectionsStatusCodes;
 import com.google.android.gms.nearby.connection.DiscoveredEndpointInfo;
 import com.google.android.gms.nearby.connection.DiscoveryOptions;
 import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback;
+import com.google.android.gms.nearby.connection.Payload;
+import com.google.android.gms.nearby.connection.PayloadCallback;
+import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.nearby.connection.Strategy;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.NonNull;
 
 public class DeviceConnector {
     private static final Strategy STRATEGY = Strategy.P2P_STAR;
@@ -44,6 +49,19 @@ public class DeviceConnector {
         Log.i(TAG, "Android ID for current device is " + ANDROID_ID);
     }
 
+    //No-op. We don't need it to actually do anything yet.
+    private PayloadCallback payloadCallback = new PayloadCallback() {
+        @Override
+        public void onPayloadReceived(@NonNull String s, @NonNull Payload payload) {
+
+        }
+
+        @Override
+        public void onPayloadTransferUpdate(@NonNull String s, @NonNull PayloadTransferUpdate payloadTransferUpdate) {
+
+        }
+    };
+
     public void startAdvertising(String userNickname, IncomingConnectionCallback callback) {
         this.userNickname = userNickname;
 
@@ -52,7 +70,8 @@ public class DeviceConnector {
                     @Override
                     public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
                         callback.IncomingConnection(endpointId, connectionInfo.getEndpointName());
-                        //Nearby.getConnectionsClient(context).acceptConnection(endpointId, payloadCallback);
+                        Log.i(TAG, "Accepting connection to " + endpointId);
+                        Nearby.getConnectionsClient(context).acceptConnection(endpointId, payloadCallback);
                     }
 
                     @Override
@@ -131,7 +150,7 @@ public class DeviceConnector {
                         });
     }
 
-    public void connectToEndpoint(String userNickname, String endpointId) {
+    public void connectToEndpoint(String userNickname, String endpointId, SignInCompletedCallback callback) {
     //TODO: We need to disconnect from the endpoint so that we can connect again in the future without restarting the app.
          ConnectionLifecycleCallback connectionLifecycleCallback =
                 new ConnectionLifecycleCallback() {
@@ -140,15 +159,19 @@ public class DeviceConnector {
                         // Automatically accept the connection on both sides.
                         Log.i(TAG, "Connection initiated by " + endpointId);
                         Log.i(TAG, "Endpoint name is " + connectionInfo.getEndpointName());
-                        //Nearby.getConnectionsClient(context).acceptConnection(endpointId, payloadCallback);
+                        Nearby.getConnectionsClient(context).acceptConnection(endpointId, payloadCallback);
                     }
 
                     @Override
                     public void onConnectionResult(String endpointId, ConnectionResolution result) {
                         switch (result.getStatus().getStatusCode()) {
                             case ConnectionsStatusCodes.STATUS_OK:
-                                Log.i(TAG, "Successfully connected to " + endpointId);
                                 // We're connected! Can now start sending and receiving data.
+                                Log.i(TAG, "Successfully connected to " + endpointId);
+                                //Disconnect from the endpoint.
+                                Nearby.getConnectionsClient(context)
+                                        .disconnectFromEndpoint(endpointId);
+                                callback.SignInCompleted(endpointId);
                                 break;
                             case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
                                 Log.i(TAG, "Connection rejected for endpoint " + endpointId);

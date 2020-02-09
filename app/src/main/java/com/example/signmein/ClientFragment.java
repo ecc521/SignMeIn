@@ -16,6 +16,7 @@ import com.example.signmein.R;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 public class ClientFragment extends Fragment {
@@ -37,7 +38,15 @@ public class ClientFragment extends Fragment {
                 Log.i(TAG, hubId);
 
                 DeviceConnector deviceConnector = new DeviceConnector(getContext());
-                deviceConnector.connectToEndpoint("Test User", hubId);
+                deviceConnector.connectToEndpoint("Test User", hubId, new SignInCompletedCallback() {
+                    @Override
+                    public void SignInCompleted(String endpointId) {
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                        builder.setPositiveButton(android.R.string.ok, null);
+                        builder.setTitle("You have been signed in to " + selectedHub.getText());
+                        builder.show();
+                    }
+                });
             }
         });
 
@@ -46,6 +55,8 @@ public class ClientFragment extends Fragment {
 
     public void onStart() {
         super.onStart();
+        String[] emptyArr = {};
+        createDeviceOptionsList(emptyArr, emptyArr);
     }
 
     private void createDeviceOptionsList(String[] endpointIds, String[] hubNames) {
