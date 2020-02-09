@@ -1,11 +1,15 @@
 package com.example.signmein;
 
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -19,9 +23,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class ClientFragment extends Fragment {
 
     private String TAG = "Client Fragment";
+    private SharedPreferences sharedPrefs;
+    private String userNameKey = "Client Name";
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -38,7 +46,7 @@ public class ClientFragment extends Fragment {
                 Log.i(TAG, hubId);
 
                 DeviceConnector deviceConnector = new DeviceConnector(getContext());
-                deviceConnector.connectToEndpoint("Test User", hubId, new SignInCompletedCallback() {
+                deviceConnector.connectToEndpoint(sharedPrefs.getString(userNameKey, "Click to Choose Name"), hubId, new SignInCompletedCallback() {
                     @Override
                     public void SignInCompleted(String endpointId) {
                         final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -50,13 +58,40 @@ public class ClientFragment extends Fragment {
             }
         });
 
+        sharedPrefs = getContext().getSharedPreferences("settings", MODE_PRIVATE);
+
+        TextView userName = inputView.findViewById(R.id.clientName);
+        userName.setPaintFlags(userName.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+
+        userName.setText(sharedPrefs.getString(userNameKey, "Click to Choose Name"));
+
+
+        userName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final EditText taskEditText = new EditText(getContext());
+                AlertDialog dialog = new AlertDialog.Builder(getContext())
+                        .setTitle("Enter New Username: ")
+                        .setView(taskEditText)
+                        .setPositiveButton("Change", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String newName = taskEditText.getText().toString();
+                                sharedPrefs.edit().putString(userNameKey, newName).commit();
+                                userName.setText(newName);
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .create();
+                dialog.show();
+            }
+        });
+
         return inputView;
     }
 
     public void onStart() {
         super.onStart();
-        String[] emptyArr = {};
-        createDeviceOptionsList(emptyArr, emptyArr);
     }
 
     private void createDeviceOptionsList(String[] endpointIds, String[] hubNames) {
@@ -82,6 +117,8 @@ public class ClientFragment extends Fragment {
 
     public void onResume() {
         super.onResume();
+        String[] emptyArr = {};
+        createDeviceOptionsList(emptyArr, emptyArr);
         DeviceConnector deviceConnector = new DeviceConnector(getContext());
 
         AvailableDevicesChangedCallback callback = new AvailableDevicesChangedCallback() {
@@ -91,7 +128,7 @@ public class ClientFragment extends Fragment {
                 createDeviceOptionsList(endpointIds, hubNames);
             }
         };
-        deviceConnector.startDiscovery("Test Client", callback);
+        deviceConnector.startDiscovery(sharedPrefs.getString(userNameKey, "Click to Choose Name"), callback);
     }
 
     public void onPause() {
