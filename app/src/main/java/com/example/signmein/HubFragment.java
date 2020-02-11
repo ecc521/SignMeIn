@@ -1,7 +1,11 @@
 package com.example.signmein;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.graphics.Paint;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,8 +28,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class HubFragment extends Fragment {
     private String TAG = "HubFragment";
+    SharedPreferences sharedPrefs;
+    private String hubNameKey = "hubname";
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -59,6 +67,36 @@ public class HubFragment extends Fragment {
             }
         });
 
+        sharedPrefs = getContext().getSharedPreferences("settings", MODE_PRIVATE);
+
+        TextView hubName = inputView.findViewById(R.id.hubName);
+        hubName.setText(sharedPrefs.getString(hubNameKey, "Click to Name Hub"));
+        hubName.setPaintFlags(hubName.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+
+
+        hubName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final EditText taskEditText = new EditText(getContext());
+                AlertDialog dialog = new AlertDialog.Builder(getContext())
+                        .setTitle("Enter New Hub Name: ")
+                        .setView(taskEditText)
+                        .setPositiveButton("Change", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String newName = taskEditText.getText().toString();
+                                sharedPrefs.edit().putString(hubNameKey, newName).commit();
+                                hubName.setText(newName);
+                                onPause();
+                                onResume();
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .create();
+                dialog.show();
+            }
+        });
+
         return inputView;
     }
 
@@ -74,7 +112,7 @@ public class HubFragment extends Fragment {
     public void onResume() {
         super.onResume();
         DeviceConnector deviceConnector = new DeviceConnector(getContext());
-        deviceConnector.startAdvertising("Test Hub", new IncomingConnectionCallback() {
+        deviceConnector.startAdvertising(sharedPrefs.getString(hubNameKey, "Click to Name Hub"), new IncomingConnectionCallback() {
             @Override
             public void IncomingConnection(String endpointId, String endpointName) {
                 userSignedIn(endpointName, endpointId); //TODO: Transfer android ID so that we have an installation ID instead of something that changes every time the app opens.
@@ -88,7 +126,9 @@ public class HubFragment extends Fragment {
         deviceConnector.stopAdvertising();
     }
 
-    public void userSignedIn(String name, String deviceID) {
+    public void userSignedIn(String signInName, String deviceID) {
+        String name = signInName.trim();
+
         TextView signInHistory = getActivity().findViewById(R.id.history);
         String text = signInHistory.getText().toString();
 
@@ -108,22 +148,27 @@ public class HubFragment extends Fragment {
 
         //Look for Document under teacher's name from login for the name entered in
         //Documents "Bob" and "History" will be changed to variables whenever the teacher login is implemented
-        DocumentReference attendance = FirebaseFirestore.getInstance().collection("Teachers").document("Bob").collection("Classes").document("History").collection("Students").document(name);
+        String databaseName = name.toLowerCase();
+
+        DocumentReference attendance = FirebaseFirestore.getInstance().collection("Teachers").document("Bob").collection("Classes").document("History").collection("Students").document(databaseName);
 
         String date = new SimpleDateFormat("MM-dd-yyyy").format(new Date());
 
+        Log.i(TAG, "Updating Attendance");
         attendance.update(date, "Present at " + time + ".")
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        Log.i(TAG, "Signed in " + databaseName);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        Log.i(TAG, "Failed to Sign In " + name);
                         final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                         builder.setPositiveButton(android.R.string.ok, null);
-                        builder.setTitle("Student " + name + " not found in class. Please contact teacher.");
+                        builder.setTitle("Student " + databaseName + " not found in class. Please contact teacher.");
                         builder.show();
                     }
                 });

@@ -42,6 +42,13 @@ public class ClientFragment extends Fragment {
             public void onClick(View view) {
                 RadioGroup rg = getActivity().findViewById(R.id.hubSelector);
                 RadioButton selectedHub = getActivity().findViewById(rg.getCheckedRadioButtonId());
+                if (selectedHub == null) {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setPositiveButton(android.R.string.ok, null);
+                    builder.setTitle("Please select a hub. ");
+                    builder.show();
+                    return;
+                }
                 String hubId = selectedHub.getTag().toString();
                 Log.i(TAG, hubId);
 
