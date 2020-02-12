@@ -4,6 +4,7 @@ package com.example.signmein;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -16,12 +17,24 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
+
+import java.util.concurrent.Executor;
 
 
 public class GoogleLoginFragment extends Fragment {
 
-    private static final String TAG = "WARN";
+    private static final String TAG = "GoogleActivity";
+    private static final String default_web_client_id = "329477146944-hrph2fhlba8jotpjndnn0llcpd5fqo5n.apps.googleusercontent.com";
+    private FirebaseAuth mAuth;
+    private GoogleSignInClient mGoogleSignInClient;
 
     public GoogleLoginFragment() {
         // Required empty public constructor
@@ -32,23 +45,27 @@ public class GoogleLoginFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build();
-        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(getActivity().getApplicationContext(), gso);
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(default_web_client_id)
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(getActivity().getApplicationContext(), gso);
         getView().findViewById(R.id.sign_in_button).setOnClickListener(this::onClick);
+        mAuth = FirebaseAuth.getInstance();
 
         return inflater.inflate(R.layout.fragment_google_login, container, false);
     }
 
     public void onStart() {
         super.onStart();
-        // Check for existing Google Sign In account, if the user is already signed in the GoogleSignInAccount will be non-null.
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getActivity().getApplicationContext());
-        updateUI(account);
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        updateUI(currentUser);
     }
 
-    private void updateUI(GoogleSignInAccount account) {
-        // TODO: Set to lead to Hub choice fragment, Pull profile id
+    private void updateUI(FirebaseUser currentUser) {
+        //TODO: pull user id, lead to ClassSelectFragment.java
     }
+
 
     public void onClick(View v) {
         switch (v.getId()) {
@@ -59,8 +76,6 @@ public class GoogleLoginFragment extends Fragment {
     }
 
     private void signIn() {
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build();
-        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(getActivity().getApplicationContext(), gso);
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, 1);
     }
@@ -73,22 +88,38 @@ public class GoogleLoginFragment extends Fragment {
         if (requestCode == 1) {
             // The Task returned from this call is always completed, no need to attach a listener.
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleSignInResult(task);
+            try {
+                // Google Sign In was successful, authenticate with Firebase
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                firebaseAuthWithGoogle(account);
+            } catch (ApiException e) {
+                // Google Sign In failed, update UI appropriately
+                Log.w(TAG, "Google sign in failed", e);
+                updateUI(null);
         }
     }
-
-    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
-        try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-
-            // Signed in successfully, show authenticated UI.
-            updateUI(account);
-        } catch (ApiException e) {
-            // The ApiException status code indicates the detailed failure reason.
-            // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
-            updateUI(null);
-        }
     }
 
-}
+    private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
+        Log.d(TAG, "firebaseAuthWithGoogle:" + account.getId());
+
+        AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener((Executor) this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "signInWithCredential:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            updateUI(user);
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "signInWithCredential:failure", task.getException());
+                            Snackbar.make(getView().findViewById(R.id.myConstraintLayout), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
+                            updateUI(null);
+                        }
+                    }
+                });
+    }
+    }
