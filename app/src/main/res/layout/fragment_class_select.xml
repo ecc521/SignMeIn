@@ -18,12 +18,14 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/classes"
-        android:layout_width="409dp"
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
         android:layout_height="588dp"
         android:layout_marginTop="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/selectclass" />
+        app:layout_constraintTop_toBottomOf="@+id/selectclass"
+        tools:listitem="@layout/item_class"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
