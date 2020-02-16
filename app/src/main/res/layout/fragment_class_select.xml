@@ -10,7 +10,7 @@
         android:id="@+id/selectclass"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="16dp"
         android:text="@string/select_class"
         android:textSize="45sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -20,12 +20,14 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="588dp"
+        android:layout_height="625dp"
         android:layout_marginTop="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/selectclass"
-        tools:listitem="@layout/item_class"/>
+        app:layout_constraintVertical_bias="1.0"
+        tools:listitem="@layout/item_class" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

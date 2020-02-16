@@ -9,6 +9,7 @@ import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,8 +39,8 @@ public class ClassSelectFragment extends Fragment {
 
         mRecyclerView = inputView.findViewById(R.id.recyclerView);
 
-        mRecyclerView.setHasFixedSize(false);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext().getApplicationContext()));
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         setupAdapter();
 
@@ -70,6 +71,13 @@ public class ClassSelectFragment extends Fragment {
             public ClassViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = getLayoutInflater().inflate(R.layout.item_class, parent,false);
                 return new ClassViewHolder(view);
+            }
+
+            @Override
+            protected void onError(@NonNull Exception e) {
+                super.onError(e);
+                Log.e("ClassSelect", e.getMessage());
+                mAdapter.retry();
             }
         };
 
