@@ -36,7 +36,7 @@ public class ClassSelectFragment extends Fragment {
 
         View inputView = inflater.inflate(R.layout.fragment_class_select, container, false);
 
-        mRecyclerView = getView().findViewById(R.id.recyclerView);
+        mRecyclerView = inputView.findViewById(R.id.recyclerView);
 
         mRecyclerView.setHasFixedSize(false);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext().getApplicationContext()));
@@ -77,14 +77,14 @@ public class ClassSelectFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
         mAdapter.startListening();
     }
 
     @Override
-    public void onPause(){
-        super.onPause();
+    public void onStop(){
+        super.onStop();
         mAdapter.stopListening();
     }
 
