@@ -36,7 +36,7 @@ public class ClassSelectFragment extends Fragment {
 
         View inputView = inflater.inflate(R.layout.fragment_class_select, container, false);
 
-        mRecyclerView = getView().findViewById(R.id.recyclerView);
+        mRecyclerView = inputView.findViewById(R.id.recyclerView);
 
         mRecyclerView.setHasFixedSize(false);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext().getApplicationContext()));
