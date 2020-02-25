@@ -152,10 +152,11 @@ public class HubFragment extends Fragment {
         // TODO: Silently fails when not connected to wifi.
         DocumentReference attendance = FirebaseFirestore.getInstance().collection("Teachers").document("Bob").collection("Classes").document("History").collection("Students").document(databaseName);
 
-        String date = new SimpleDateFormat("MM-dd-yyyy").format(new Date());
+        long dateNumber = System.currentTimeMillis();
+        String date = Long.toString(dateNumber); //new SimpleDateFormat("MM-dd-yyyy").format(new Date());
 
         Log.i(TAG, "Updating Attendance");
-        attendance.update(date, "Present at " + time + ".")
+        attendance.update(date, "Present.")
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
