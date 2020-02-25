@@ -156,7 +156,7 @@ public class HubFragment extends Fragment {
         String date = Long.toString(dateNumber); //new SimpleDateFormat("MM-dd-yyyy").format(new Date());
 
         Log.i(TAG, "Updating Attendance");
-        attendance.update(date, "Present.")
+        attendance.update(date, "present")
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
