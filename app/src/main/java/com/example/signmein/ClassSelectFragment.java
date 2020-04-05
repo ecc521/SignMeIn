@@ -29,7 +29,9 @@ public class ClassSelectFragment extends Fragment {
     private FirestorePagingAdapter<Class, ClassViewHolder> mAdapter;
     //Will need to change document "Bob" based on the teacher logged in.
     private CollectionReference classes = FirebaseFirestore.getInstance().collection("Teachers").document("Bob").collection("Classes");
-    private Query query = classes;
+    private Query mQuery = classes.orderBy("className", Query.Direction.DESCENDING);
+    private String TAG = "ClassSelect";
+    private View.OnClickListener mOnItemClickListener;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -44,6 +46,8 @@ public class ClassSelectFragment extends Fragment {
 
         setupAdapter();
 
+        mAdapter.setOnItemClickListener(onItemClickListener);
+
         return inputView;
     }
 
@@ -57,13 +61,13 @@ public class ClassSelectFragment extends Fragment {
 
         FirestorePagingOptions options = new FirestorePagingOptions.Builder<Class>()
                 .setLifecycleOwner(this)
-                .setQuery(query, config, Class.class)
+                .setQuery(mQuery, config, Class.class)
                 .build();
 
         mAdapter = new FirestorePagingAdapter<Class, ClassViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull ClassViewHolder viewHolder, int i, @NonNull Class _class) {
-                viewHolder.bind(_class);
+            protected void onBindViewHolder(@NonNull ClassViewHolder viewHolder, int i, @NonNull Class nameClass) {
+                viewHolder.bind(nameClass);
             }
 
             @NonNull
@@ -73,10 +77,14 @@ public class ClassSelectFragment extends Fragment {
                 return new ClassViewHolder(view);
             }
 
+            public void setOnItemClickListener (View.OnClickListener itemClickListener){
+                mOnItemClickListener = itemClickListener;
+            }
+
             @Override
             protected void onError(@NonNull Exception e) {
                 super.onError(e);
-                Log.e("ClassSelect", e.getMessage());
+                Log.e(TAG, e.getMessage());
                 mAdapter.retry();
             }
         };

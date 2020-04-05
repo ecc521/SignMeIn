@@ -12,4 +12,8 @@ public class Class {
     public Class(String className){
         this.className = className;
     }
+
+    public String getClassName() {
+        return className;
+    }
 }
